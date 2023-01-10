@@ -50,5 +50,92 @@ module.exports = (io) => {
     }
   });
 
+  router.post("/single", async (req, res) => {
+    try {
+      const { slug } = req.body;
+      if (!slug) return sendRes(res, 400, "Please Add Slug");
+      let group = await GroupSchema.findOne({ slug }).populate({
+        path: "creator members admins",
+        model: "User",
+        select: "name email username",
+      });
+      if (group) return sendRes(res, 200, group);
+      return sendRes(res, 400, "Something Wrong");
+    } catch (error) {
+      sendRes(res, 500, error.message);
+    }
+  });
+
+  router.patch("/add-user", async (req, res) => {
+    try {
+      const { slug, members } = req.body;
+      if (!slug || members.length == 0) return sendRes(res, 400, "Please Info");
+
+      let group = await GroupSchema.findOneAndUpdate(
+        { slug },
+        { $push: { members } }
+      );
+
+      if (group) {
+        io.emit("group-user", group);
+        return sendRes(res, 200, "Members Added");
+      }
+      return sendRes(res, 400, "Something Wrong");
+    } catch (error) {
+      sendRes(res, 500, error.message);
+    }
+  });
+  router.patch("/make-admin", async (req, res) => {
+    try {
+      const { slug, admin } = req.body;
+      if (!slug || !admin) return sendRes(res, 400, "Please Info");
+
+      let group = await GroupSchema.findOneAndUpdate(
+        { slug },
+        { $push: { admins: admin } }
+      );
+
+      if (group) {
+        io.emit("admin-added", group);
+        return sendRes(res, 200, "New Admin Added");
+      }
+      return sendRes(res, 400, "Something Wrong");
+    } catch (error) {
+      sendRes(res, 500, error.message);
+    }
+  });
+  router.patch("/remove-admin", async (req, res) => {
+    try {
+      const { slug, admin } = req.body;
+      if (!slug || !admin) return sendRes(res, 400, "Please Info");
+
+      let group = await GroupSchema.findOneAndUpdate(
+        { slug },
+        { $pop: { admins: admin } }
+      );
+
+      if (group) return sendRes(res, 200, "Admin Removed");
+      return sendRes(res, 400, "Something Wrong");
+    } catch (error) {
+      sendRes(res, 500, error.message);
+    }
+  });
+  router.patch("/remove-user", async (req, res) => {
+    try {
+      const { slug, user } = req.body;
+      if (!slug || !user) return sendRes(res, 400, "Please Info");
+
+      let group = await GroupSchema.findOneAndUpdate(
+        { slug },
+        { $pop: { members: user } }
+      );
+
+      if (group) return sendRes(res, 200, "User Removed");
+      return sendRes(res, 400, "Something Wrong");
+    } catch (error) {
+      sendRes(res, 500, error.message);
+    }
+  });
+
   return router;
 };
