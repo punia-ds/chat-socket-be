@@ -29,6 +29,7 @@ module.exports = (io) => {
       }).save();
 
       if (resp) return sendRes(res, 200, "Created");
+      io.emit("create-group", resp);
       return sendRes(res, 400, "Something Wrong");
     } catch (error) {
       sendRes(res, 500, error.message);
