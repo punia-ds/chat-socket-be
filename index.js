@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
       let add = await insExp.save();
       socket.emit("success", add);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       socket.emit("error", () => error.message);
     }
   });
@@ -45,8 +45,10 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/");
 });
 app.use("/api/v1/user/", require("./src/routes/user.route")(io));
+app.use("/api/v1/group/", require("./src/routes/group.route")(io));
 
 // server
-server.listen(3000, () => {
-  console.log("Server listening on port 3000");
+const port = process.env.PORT || 3005;
+server.listen(port, () => {
+  console.log("Server listening on port " + port);
 });

@@ -11,8 +11,10 @@ async function sendRes(res, status, message) {
     });
 
     let ins = await insErr.save();
+    console.log('first')
     return res.json({ status, message });
   } else {
+    console.log('sdsd')
     return res.json({ status, message });
   }
 }

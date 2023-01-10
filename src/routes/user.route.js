@@ -2,6 +2,8 @@ const express = require("express");
 const User = require("../models/user.model");
 const sendRes = require("../utils/response");
 const bcrypt = require("bcrypt");
+
+
 module.exports = (io) => {
   const router = express.Router();
 
@@ -47,7 +49,7 @@ module.exports = (io) => {
         return sendRes(res, 400, "User Not Exists");
       }
       io.emit("user logged in", user);
-      return sendRes(res, 200, "User Login");
+      return sendRes(res, 200, user);
     });
   });
 
